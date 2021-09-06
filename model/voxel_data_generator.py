@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import math
 import numpy as np
 from scipy.ndimage.interpolation import shift, zoom
@@ -9,7 +8,6 @@ import random
 from torch.utils.data import Dataset
 
 
-# +
 # 用於對microbump做augmentation，整體來說就是隨機作旋轉、翻轉、平移等修改
 class bump_augmentation(Dataset):
     def __init__(self, train=True):
