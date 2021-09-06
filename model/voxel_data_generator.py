@@ -8,7 +8,45 @@ import random
 from torch.utils.data import Dataset
 
 
-# 用於對microbump做augmentation，整體來說就是隨機作旋轉、翻轉、平移等修改
+# 載入Microbump training set(x:3D矩陣, y:電阻)
+class CT_scan(Dataset):
+    def __init__(self, train=True):
+        self.train = train
+        self.x_train, self.y_train = np.load('TSMC/bump_x_train.npy'), np.load('TSMC/bump_y_train.npy')
+        self.x_val, self.y_val = np.load('TSMC/bump_x_val.npy'), np.load('TSMC/bump_y_val.npy')
+
+    def __getitem__(self, index):
+        if self.train:
+            inputs, target = self.x_train[index, :, :, :, :], self.y_train[index]
+        else:
+            inputs, target = self.x_val[index, :, :, :, :], self.y_val[index]
+        inputs = torch.from_numpy(inputs).type(torch.cuda.FloatTensor)
+        target = torch.from_numpy(np.array(target)).type(torch.cuda.FloatTensor)
+        return inputs, target
+
+    def __len__(self):
+        if self.train:
+            return len(self.x_train)
+        else:
+            return len(self.x_val)
+      
+
+# 載入Microbump testing set
+class bump_test(Dataset):
+    def __init__(self):
+        self.x, self.y = np.load('TSMC/bump_x_test.npy'), np.load('TSMC/bump_y_test.npy')
+
+    def __getitem__(self, index):
+        inputs, target = self.x[index, :, :, :, :], self.y[index]
+        inputs = torch.from_numpy(inputs).type(torch.cuda.FloatTensor)
+        target = torch.from_numpy(np.array(target)).type(torch.cuda.FloatTensor)
+        return inputs, target
+
+    def __len__(self):
+        return len(self.x)
+        
+        
+# 用於對microbump做augmentation, 整體來說就是隨機作旋轉、翻轉、平移等修改
 class bump_augmentation(Dataset):
     def __init__(self, train=True):
         self.train = train
